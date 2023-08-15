@@ -20,15 +20,27 @@ public class taskOverview extends AppCompatActivity {
 
     public long userID;
 
+    String email;
+
+    String password;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sub_task_overview);
 
+        listView = findViewById(R.id.listViewTasks);
+        Button ButtonLogout = findViewById(R.id.buttonLogout);
+        Button ButtonAddTask = findViewById(R.id.buttonAddTask);
+        items = new ArrayList<>();
+        itemsAdapter = new ArrayAdapter<>(this,  R.layout.list_item_task, R.id.textViewTask, items);
+        listView.setAdapter(itemsAdapter);
+
+
         Intent intent = getIntent();
         if (intent != null) {
-            String email = intent.getStringExtra("email");
-            String password = intent.getStringExtra("password");
+            email = intent.getStringExtra("email");
+            password = intent.getStringExtra("password");
             if (email != null && password != null) {
                 // Use the email and password variables as needed
                 // For example, you could pass them to your data source
@@ -37,9 +49,10 @@ public class taskOverview extends AppCompatActivity {
             }
         }
 
-        listView = findViewById(R.id.listViewTasks);
-        Button ButtonLogout = findViewById(R.id.buttonLogout);
-        Button ButtonAddTask = findViewById(R.id.buttonAddTask);
+        ShoppingMemoDataSource dataSource = new ShoppingMemoDataSource(this);
+        dataSource.open();
+        userID = dataSource.getCurrentUserID(email, password);
+
 
         ButtonLogout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,9 +68,7 @@ public class taskOverview extends AppCompatActivity {
                 addItem(view);
             }
         });
-        items = new ArrayList<>();
-        itemsAdapter = new ArrayAdapter<>(this,  R.layout.list_item_task, R.id.textViewTask, items);
-        listView.setAdapter(itemsAdapter);
+
     }
     public void onDeleteButtonClick(View view) {
         int position = listView.getPositionForView((View) view.getParent());
